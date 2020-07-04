@@ -12,6 +12,10 @@ Flask-Migrate = "*"
 "psycopg2" = "*"
 Flask-SSLify = "*"
 flask-sslify = "*"
+flask-login = "*"
+flask-wtf = "*"
+wtforms = "*"
+pycryptodome = "*"
 
 [dev-packages]
 

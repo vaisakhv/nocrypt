@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block main %}
+<article>
+  <header>
+    <img src="{{ url_for('static', filename='images/flasks.jpg') }}" alt="">
+  </header>
+  <main>
+    <h2>noCRYPT</h2>
+    <span>Secure cross-platform note taking app</span>
+
+  </main>
+  <footer>
+    <button id="btnAdd">Install App</button>
+  </footer>
+</article>
+{% endblock %}

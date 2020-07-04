@@ -1,7 +1,7 @@
 {
-  "name": "Flask-PWA",
-  "short_name": "Flask-PWA",
-  "description": "A progressive webapp template built with Flask",
+  "name": "noCRYPT",
+  "short_name": "noCRYPT",
+  "description": "A secure and Private cross-platform note taking app",
   "theme_color": "transparent",
   "background_color": "transparent",
   "display": "standalone",
