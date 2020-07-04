@@ -6,8 +6,8 @@
   "background_color": "transparent",
   "display": "standalone",
   "orientation": "portrait",
-  "scope": "/",
-  "start_url": "/",
+  "scope": "/login",
+  "start_url": "/login",
   "icons": [
     {
       "src": "images/icons/icon-72x72.png",
@@ -17,6 +17,11 @@
     {
       "src": "images/icons/icon-96x96.png",
       "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "images/icons/icon-120x120.png",
+      "sizes": "12x120",
       "type": "image/png"
     },
     {

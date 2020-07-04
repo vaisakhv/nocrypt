@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>Login V16</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>{{ title }}</title>
@@ -30,6 +29,23 @@
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/util.css') }}">
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
 <!--===============================================================================================-->
+	<style>
+		.btnAdd {
+			border: none;
+			color: white;
+			padding: 20px;
+			text-align: center;
+			text-decoration: none;
+			display: inline-block;
+			font-size: 16px;
+			margin: 4px 2px;
+			cursor: pointer;
+			position:relative;
+			bottom:0;
+			width:100%;
+			border-radius: 12px;
+		}
+	</style>
 </head>
 <body class="main">
 {% if not auth%}
@@ -74,21 +90,22 @@
 							</div>
 							<p style="float:right">Doesn't have an account?<a href="/join">Sign Up</a></p>
 						{%  endif %}
-					{% with messages = get_flashed_messages() %}
-						{% if messages %}
-							<ul class="alert">
-								{% for message in messages %}
-									<a class="alert ">{{ message }}</a>
-								{% endfor %}
-							</ul>
-						{% endif %}
-					{% endwith %}
+						{% with messages = get_flashed_messages() %}
+							{% if messages %}
+								<ul class="alert">
+									{% for message in messages %}
+										<a class="alert ">{{ message }}</a>
+									{% endfor %}
+								</ul>
+							{% endif %}
+						{% endwith %}
 				</form>
+				<button class="btnAdd" id="btnAdd">Install App</button>
 			</div>
 		</div>
 	</div>
+
 {%  endif %}
-	<div id="dropDownSelect1"></div>
 <!--===============================================================================================-->
 	<script type='text/javascript' src="{{ url_for('static', filename='vendor/jquery/jquery-3.2.1.min.js') }}"></script>
 	<script type='text/javascript' src="{{ url_for('static', filename='vendor/animsition/js/animsition.min.js') }}"></script>

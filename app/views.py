@@ -19,6 +19,13 @@ class SignupForm(FlaskForm):
                              [validators.DataRequired("Please enter you password"), validators.Length(min=7)],
                              render_kw={'placeholder': 'password'})
     confirm_password = PasswordField('confirm_password',
-                                     [validators.DataRequired("Please re-enter you password"), validators.Length(min=7)],
+                                     [validators.DataRequired("Please re-enter you password"),
+                                      validators.Length(min=7)],
                                      render_kw={'placeholder': 're-enter password'})
 
+
+class CreateNoteForm(FlaskForm):
+    title = StringField('Title', [validators.DataRequired("Please enter a title"), validators.Length(min=1)],
+                        render_kw={'placeholder': 'Title'})
+    body = StringField('Note', [validators.DataRequired("Please enter a content"), validators.Length(min=1)],
+                           render_kw={'placeholder': 'Content'})

@@ -16,6 +16,9 @@ flask-login = "*"
 flask-wtf = "*"
 wtforms = "*"
 pycryptodome = "*"
+flask-script = "*"
+flask-admin = "*"
+bleach = "*"
 
 [dev-packages]
 
