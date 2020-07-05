@@ -21,8 +21,17 @@
 </head>
 <body>
     <div>
+		{% with messages = get_flashed_messages() %}
+			{% if messages %}
+				<ul class="alert">
+				{% for message in messages %}
+					<a class="alert ">{{ message }}</a>
+				{% endfor %}
+				</ul>
+			{% endif %}
+		{% endwith %}
        <form action="" method="POST">
-            <textarea id="summernote" name="editordata">{{data | safe}}</textarea>
+            <textarea id="summernote" name="editordata">{{data.decode('utf8') | safe}}</textarea>
             <input type="submit" value="Save Content">
 	   </form>
     </div>
@@ -31,5 +40,16 @@
 	$(document).ready(function() {
 	  $('#summernote').summernote();
 	});
+	$('#summernote').summernote({
+	toolbar: [
+	  ['style', ['style']],
+	  ['font', ['bold', 'underline', 'clear']],
+	  ['color', ['color']],
+	  ['para', ['ul', 'ol', 'paragraph']],
+	  ['table', ['table']],
+	  ['insert', ['link']],
+	  ['view', ['fullscreen', 'codeview', 'help']]
+	]
+  });
 </script>
 </html>

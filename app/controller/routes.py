@@ -1,11 +1,13 @@
 from flask_login import login_required, LoginManager, login_user, current_user, logout_user
-from app.model import User, create_app, db, Note
 from flask import render_template, jsonify, redirect, url_for, flash, request
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from werkzeug.security import generate_password_hash, check_password_hash
-import bleach
+from uuid import uuid4
+from bleach import clean, sanitizer
 from app.views import LoginForm, SignupForm, CreateNoteForm
+from app.model import User, create_app, db, Note
+from app.security import encrypt, decrypt
 
 # bp = Blueprint('main', __name__)
 app = create_app()
@@ -40,7 +42,8 @@ def user_loader(uid):
 
 @app.route('/')
 def to_home():
-    print('redirecting to ', url_for('login'))
+    if is_auth():
+        return redirect(url_for('mynotes'), code=302)
     return redirect(url_for('login'), code=302)
 
 
@@ -53,16 +56,10 @@ def signUp():
         conf_passw = form.confirm_password.data
         existing_user = User.find_by_username(username=username)
         enc_pass = generate_password_hash(password=password, method='pbkdf2:sha256', salt_length=8)
-        print(username, password, enc_pass)
-        try:
-            print(existing_user.id)
-        except Exception as e:
-            print(str(e))
         if password == conf_passw and existing_user is None:
             new_user = User(username=username,
                             password=enc_pass)
             new_user.save_to_db()
-            print('user created')
             return redirect(url_for("login"))
         flash(message='Invalid username or password')
     return render_template('main/index.html', title='noCRYPT', auth=is_auth(), form=form, login=False)
@@ -70,9 +67,7 @@ def signUp():
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
-    print(is_auth())
     form = LoginForm()
-    print(form.errors)
     if form.validate_on_submit():
         username = form.username.data
         password = form.password.data
@@ -80,10 +75,10 @@ def login():
         user = User.find_by_username(username=username)
         if user is not None and check_password_hash(user.password, password=password):
             login_user(user)
-            admin.add_view(ModelView(User, db.session))
-            admin.add_view(ModelView(Note, db.session))
+            # admin.add_view(ModelView(User, db.session))
+            # admin.add_view(ModelView(Note, db.session))
             next = request.args.get('next')
-            return redirect(next or url_for('notes'))
+            return redirect(next or url_for('mynotes'))
     return render_template('main/index.html', title='noCRYPT', auth=is_auth(), form=form, login=True)
 
 
@@ -94,37 +89,51 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('/notes', methods=["GET", "POST"])
+def get_custom_list():
+    return ['h1', 'h3', 'h4', 'h2', 'br', 'p', 'font', 'pre', 'u', 'td', 'tr', 'tbody', 'table', 'div']
+
+
+@app.route('/create_notes', methods=["GET", "POST"])
 @login_required
-def notes():
+def create_notes():
     if request.method == 'POST':
-        print(current_user.id)
-        cleaned_data = bleach.clean(request.form.get('editordata'),
-                                    tags=bleach.sanitizer.ALLOWED_TAGS + ['h1', 'h3', 'h4', 'h2', 'br', 'img'])
-        print(cleaned_data)
-        new_data = Note(body=cleaned_data, owner_id=current_user.id)
-        new_data.save_to_db()
-        return "posted"
+        cleaned_data = clean(request.form.get('editordata'),
+                             tags=sanitizer.ALLOWED_TAGS + get_custom_list())
+        if cleaned_data != '<p>&nbsp;</p>':
+            encrypted_data = encrypt(raw=cleaned_data, __key=current_user.password)
+            new_data = Note(body=encrypted_data, owner_id=current_user.id, uid=str(uuid4()))
+            new_data.save_to_db()
+            return redirect(url_for('mynotes'))
     return render_template('main/notes.html', title='noCRYPT', auth=is_auth(), login=True)
-# make a screen to display notes from the user/like search reseult in med360
-# make a function for giving base64 id
-# streamline everything
 
 
-@app.route('/display/<int:id>', methods=['GET', 'POST'])
-def display(id):
-    data = Note.find_by_id(id)
-    print(data.body)
+@app.route('/mynotes')
+@login_required
+def mynotes():
+    notes = Note.find_by_user_id(current_user.id)
+    return render_template('main/mynotes.html', title='noCRYPT', auth=is_auth(), notes=notes, decrypt=decrypt)
+
+
+@app.route('/edit/<string:uid>', methods=['GET', 'POST'])
+@login_required
+def edit(uid):
+    selected_id = str(uid)
+    data = Note.find_by_uid(selected_id)
     if request.method == "POST":
-        print('in post')
-        data.body = bleach.clean(request.form.get('editordata'),
-                                 tags=bleach.sanitizer.ALLOWED_TAGS + ['h1', 'h3', 'h4', 'h2', 'br', 'img'])
-        print('edit')
-        print(data.body)
-        data.save_to_db()
-        return render_template('display.html', data=data.body)
-    return render_template('display.html', data=data.body)
-    # return render_template('display.html', data=data.body)
+        if data.owner_id == current_user.id:
+            cleaned_edit = clean(request.form.get('editordata'),
+                                 tags=sanitizer.ALLOWED_TAGS + get_custom_list())
+            encrypted_edit = encrypt(raw=cleaned_edit, __key=current_user.password)
+            if len(data.body) >= 1:
+                data.save_to_db()
+            else:
+                data.remove_from_db()
+            return redirect(url_for('mynotes'))
+            # return render_template('main/display.html', data=data.body, title='noCRYPT')
+        flash(message='This is not your note')
+        return render_template('main/display.html', data='<h1>Not your note</h1>', title='noCRYPT')
+    return render_template('main/display.html', data=decrypt(enc=data.body, __key=current_user.password),
+                           title='noCRYPT')
 
 
 if __name__ == '__main__':

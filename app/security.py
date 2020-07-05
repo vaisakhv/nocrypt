@@ -1,42 +1,23 @@
 import base64
-from Crypto.Cipher import AES
-from Crypto import Random
-from Crypto.Protocol.KDF import PBKDF2
-
-BLOCK_SIZE = 16
-pad = lambda s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)
-unpad = lambda s: s[:-ord(s[len(s) - 1:])]
-
-password = input("Enter encryption password: ")
+import hashlib
+from Cryptodome.Cipher import AES
+from Cryptodome.Random import get_random_bytes
 
 
-def get_private_key(password):
-    salt = b"this is a salt"
-    kdf = PBKDF2(password, salt, 64, 1000)
-    key = kdf[:32]
-    return key
+def encrypt(raw, __key):
+    BS = AES.block_size
+    pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
 
-
-def encrypt(raw, password):
-    private_key = get_private_key(password)
-    raw = pad(raw)
-    iv = Random.new().read(AES.block_size)
-    cipher = AES.new(private_key, AES.MODE_CBC, iv)
+    raw = base64.b64encode(pad(raw).encode('utf8'))
+    iv = get_random_bytes(AES.block_size)
+    cipher = AES.new(key=__key[:16].encode('utf8'), mode=AES.MODE_CFB, iv=iv)
     return base64.b64encode(iv + cipher.encrypt(raw))
 
 
-def decrypt(enc, password):
-    private_key = get_private_key(password)
+def decrypt(enc, __key):
+    unpad = lambda s: s[:-ord(s[-1:])]
+
     enc = base64.b64decode(enc)
-    iv = enc[:16]
-    cipher = AES.new(private_key, AES.MODE_CBC, iv)
-    return unpad(cipher.decrypt(enc[16:]))
-
-
-# First let us encrypt secret message
-encrypted = encrypt("This is a secret message", password)
-print(encrypted)
-
-# Let us decrypt using our original password
-decrypted = decrypt(encrypted, password)
-print(bytes.decode(decrypted))
+    iv = enc[:AES.block_size]
+    cipher = AES.new(__key[:16].encode('utf8'), AES.MODE_CFB, iv)
+    return unpad(base64.b64decode(cipher.decrypt(enc[AES.block_size:])))

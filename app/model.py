@@ -3,8 +3,6 @@ import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from flask import Flask
-from flask_migrate import Migrate, MigrateCommand
-from flask_script import Manager
 
 
 def create_app():
@@ -35,7 +33,8 @@ app = create_app()
 db = SQLAlchemy(app)
 db.init_app(app)
 
-
+# from flask_migrate import Migrate, MigrateCommand
+# from flask_script import Manager
 # migrate = Migrate(app, db, render_as_batch=True)
 # manager = Manager(app)
 # manager.add_command('db', MigrateCommand)
@@ -43,12 +42,13 @@ db.init_app(app)
 
 class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    uid = db.Column(db.String(36), unique=True, nullable=False)
     body = db.Column(db.String(512), nullable=False)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     @classmethod
-    def find_by_id(cls, id):
-        return cls.query.filter_by(id=id).first()
+    def find_by_uid(cls, id):
+        return cls.query.filter_by(uid=id).first()
 
     @classmethod
     def find_by_user_id(cls, user_id):
@@ -62,7 +62,8 @@ class Note(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    def __init__(self, body, owner_id):
+    def __init__(self, body, owner_id, uid):
+        self.uid = uid
         self.body = body
         self.owner_id = owner_id
 
@@ -94,5 +95,6 @@ def __init__(self, **kwargs):
     for key, value in kwargs.items():
         setattr(self, key, value)
 
+#
 # if __name__ == '__main__':
 #     manager.run()
