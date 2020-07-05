@@ -5,7 +5,7 @@
 ![GitHub](https://img.shields.io/github/license/vaisakhv/nocrypt)
 
 
-![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/vaisakhv/nocrypt/pycryptodome)
+![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/vaisakhv/nocrypt/pycryptodomex)
 ![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/vaisakhv/nocrypt/flask)
 ![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/vaisakhv/nocrypt/werkzeug)
 
