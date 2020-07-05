@@ -1,5 +1,5 @@
 # noCRYPT
-> An Secure and private note taking progressive webapp .
+> A Secure and private note taking progressive webapp .
 
 ![stability-wip](https://img.shields.io/badge/stability-work_in_progress-lightgrey.svg)
 ![GitHub](https://img.shields.io/github/license/vaisakhv/nocrypt)
