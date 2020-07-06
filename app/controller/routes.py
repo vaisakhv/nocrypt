@@ -26,6 +26,10 @@ def is_auth():
     return auth
 
 
+def get_custom_list():
+    return ['h1', 'h3', 'h4', 'h2', 'br', 'p', 'font', 'pre', 'u', 'td', 'tr', 'tbody', 'table', 'div']
+
+
 @app.route('/check/<username>')
 def check(username):
     user = User.find_user_by_username(username=username)
@@ -43,7 +47,8 @@ def user_loader(uid):
 @app.route('/')
 def to_home():
     if is_auth():
-        return redirect(url_for('mynotes'), code=302)
+        next = request.args.get('next')
+        return redirect(next or url_for('mynotes'))
     return redirect(url_for('login'), code=302)
 
 
@@ -67,6 +72,9 @@ def signUp():
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
+    if is_auth():
+        next = request.args.get('next')
+        return redirect(next or url_for('mynotes'))
     form = LoginForm()
     if form.validate_on_submit():
         username = form.username.data
@@ -87,10 +95,6 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('login'))
-
-
-def get_custom_list():
-    return ['h1', 'h3', 'h4', 'h2', 'br', 'p', 'font', 'pre', 'u', 'td', 'tr', 'tbody', 'table', 'div']
 
 
 @app.route('/create_notes', methods=["GET", "POST"])
@@ -124,6 +128,7 @@ def edit(uid):
             cleaned_edit = clean(request.form.get('editordata'),
                                  tags=sanitizer.ALLOWED_TAGS + get_custom_list())
             encrypted_edit = encrypt(raw=cleaned_edit, __key=current_user.password)
+            data.body = encrypted_edit
             if len(data.body) >= 1:
                 data.save_to_db()
             else:
@@ -132,8 +137,7 @@ def edit(uid):
             # return render_template('main/display.html', data=data.body, title='noCRYPT')
         flash(message='This is not your note')
         return render_template('main/display.html', data='<h1>Not your note</h1>', title='noCRYPT')
-    return render_template('main/display.html', data=decrypt(enc=data.body, __key=current_user.password),
-                           title='noCRYPT')
+    return render_template('main/display.html', data=data, title='noCRYPT', decrypt=decrypt)
 
 
 if __name__ == '__main__':

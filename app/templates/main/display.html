@@ -31,7 +31,7 @@
 			{% endif %}
 		{% endwith %}
        <form action="" method="POST">
-            <textarea id="summernote" name="editordata">{{data.decode('utf8') | safe}}</textarea>
+            <textarea id="summernote" name="editordata">{{decrypt(enc=data.body, __key=current_user.password).decode('utf8') | safe}}</textarea>
             <input type="submit" value="Save Content">
 	   </form>
     </div>
