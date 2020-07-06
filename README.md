@@ -1,5 +1,7 @@
-# noCRYPT  <img src="https://raw.githubusercontent.com/vaisakhv/nocrypt/master/app/static/images/icons/icon-120x120.png" width="200" height="100"/>
+# noCRYPT  
 > A Secure and private note taking progressive webapp.
+
+<img src="https://raw.githubusercontent.com/vaisakhv/nocrypt/master/app/static/images/icons/icon-120x120.png" width="200" height="100"/>
 
 noCRYPT is an encrypted note taking app. 
 ##Features
